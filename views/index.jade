@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{para}
+  form(action = "/signup", method ="POST")
+    label(for="uname") Username:
+      input(type = "text", name = "uname", id = "uname", placeholder = "Enter Username", required)
+    label(for="pass") Password:
+      input(type = "password", name = "pass", id = "pass", placeholder = "Enter Password", required)
+    label(for="2fa") Turn on 2 factor authentication:
+      input(type = "checkbox", name = "twoFa", id = "twoFa")
+    input(type = "submit", value = "Signup")
