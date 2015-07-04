@@ -5,27 +5,30 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// This is the required library for the QRcode
+var qrCode = require('qrcode-npm');
+var totp = require('./totp');
 var routes = require('./routes/index');
 //var users = require('./routes/users');
 
 var app = express();
 var users = {
   store: [],
+  addSecret: function(uname, secret) {
+    var user = this.getUser(uname);
+    user.secret = secret;
+  },
   addUser: function(uname, pass) {
     var user = {};
     user.uname = uname;
     user.pass = pass;
+    user.secret = null;
     this.store.push(user);
-  },
-  setTwoFA: function(key, data) {
-    this.store[key] = data;
   },
   getUser: function(uname) {
     for(var i = 0; i < this.store.length; i++){
-      console.log(this.store[i].uname, " is a user", this.store.length);
       if(this.store[i].uname.toString() == uname.toString())
         return this.store[i];
-      //return {uname: '', pass:''};
     }
   }
 };
@@ -52,28 +55,40 @@ app.post('/signup', function(req, res, next){
   var twoFa = req.body.twoFa;
   var twoFaConfirmation;
   users.addUser(uname, pass);
-  users.addUser('s', pass);
-  users.addUser('f', pass);
-  users.addUser('o', pass);
-  console.log(users.store, "here");
+
   var user = users.getUser(uname);
   if (twoFa === 'on'){
-    twoFaConfirmation = 'YES';
-    res.render('qrcode', {uname: user.uname, pass: user.pass, twoFa: twoFaConfirmation});
+    totp(function (err, otp) {
+      twoFaConfirmation = 'YES';
+      users.addSecret(uname, otp.secret);
+      var qr = qrCode.qrcode(10, 'M');
+      qr.addData(otp.totpURL);
+      qr.make();
+      var imgData = qr.createImgTag(4);    // creates an <img> tag as text
+      res.render('qrcode', {uname: user.uname, pass: user.pass, secret: user.secret, twoFa: twoFaConfirmation, imgData: imgData});
+    });
   }
   else{
     twoFaConfirmation = 'NO';
-    res.render('signup-success', {title:'Signup Success', uname: user.uname, pass: user.pass, twoFa: twoFaConfirmation});
+    res.render('signup-success', {title:'Signup Success', uname: user.uname, pass: user.pass, twoFa: twoFaConfirmation, msg: ''});
   }
 
 
 });
 
-app.get('/signup', function(req, res, next){
+app.get('/signup', function(req, res, next) {
   res.writeHead(200, {'content-type': 'text/html'});
   res.end("Sorry this document cant be GET'ed");
 });
 
+app.get('/users', function(req, res, next) {
+  res.writeHead(200, {'content-type': 'text/html'});
+  for(var i = 0; i < users.store.length; i++)
+    res.write('hi');
+  //res.write(users.store[i]);
+  console.log(users);
+  res.end();
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
