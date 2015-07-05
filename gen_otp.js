@@ -15,7 +15,7 @@ function gen_otp(key) {
   // set the name and the key for our purpose. Just letting the others be there
   // in case we need something other than the default.
   var otp = OTP(options);
-  console.log("OTP generated is", otp.totp());
+  //console.log("OTP generated is", otp.totp());
   return otp;
 }
 

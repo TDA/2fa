@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 // This is the required library for the QRcode
 var qrCode = require('qrcode-npm');
 var totp = require('./totp');
+var gen_otp = require('./gen_otp');
 var routes = require('./routes/index');
 //var users = require('./routes/users');
 
@@ -49,7 +50,7 @@ app.use('/', routes);
 //app.use('/users', users);
 
 
-app.post('/signup', function(req, res, next){
+app.post('/signup', function(req, res){
   var uname = req.body.uname;
   var pass = req.body.pass;
   var twoFa = req.body.twoFa;
@@ -72,16 +73,29 @@ app.post('/signup', function(req, res, next){
     twoFaConfirmation = 'NO';
     res.render('signup-success', {title:'Signup Success', uname: user.uname, pass: user.pass, twoFa: twoFaConfirmation, msg: ''});
   }
-
-
 });
 
-app.get('/signup', function(req, res, next) {
+/*app.post('/verify', function(req, res){
+  var secret = req.body.secret;
+  var otp = gen_otp(secret);
+  res.writeHead(200, {'content-type': 'text/html'});
+  res.end(otp.totp);
+});
+*/
+app.get('/verify', function(req, res){
+  var secret = req.query.secret;
+
+  res.writeHead(200, {'content-type': 'text/html'});
+  res.end('hi' + secret);
+});
+
+
+app.get('/signup', function(req, res) {
   res.writeHead(200, {'content-type': 'text/html'});
   res.end("Sorry this document cant be GET'ed");
 });
 
-app.get('/users', function(req, res, next) {
+app.get('/users', function(req, res) {
   res.writeHead(200, {'content-type': 'text/html'});
   for(var i = 0; i < users.store.length; i++)
     res.write('hi');

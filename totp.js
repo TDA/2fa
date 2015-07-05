@@ -3,7 +3,7 @@
  */
 var OTP = require('otp');
 var otp_key = require('otp-key');
-var gen_otp = require('./gen_otp')
+var gen_otp = require('./gen_otp');
 function gen_secret_key(callback) {
   otp_key(function (err, key) {
     if(err){
