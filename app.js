@@ -75,26 +75,30 @@ app.post('/signup', function(req, res){
   }
 });
 
-/*app.post('/verify', function(req, res){
-  var secret = req.body.secret;
-  var otp = gen_otp(secret);
-  res.writeHead(200, {'content-type': 'text/html'});
-  res.end(otp.totp);
-});
-*/
-app.get('/verify', function(req, res){
-  var secret = req.query.secret;
-
-  res.writeHead(200, {'content-type': 'text/html'});
-  res.end('hi' + secret);
-});
-
-
 app.get('/signup', function(req, res) {
   res.writeHead(200, {'content-type': 'text/html'});
   res.end("Sorry this document cant be GET'ed");
 });
 
+app.post('/verify', function(req, res){
+  var secret = req.body.secret;
+  var code = req.body.code;
+  var otp = gen_otp(secret);
+  if(otp.totp().toString() === code.toString()){
+    // the codes matched, so we were able to set up this successfully.
+    res.end("true");
+  }
+  else{
+    res.end("false");
+  }
+});
+
+app.get('/verify', function(req, res){
+  res.writeHead(200, {'content-type': 'text/html'});
+  res.end("Sorry this document cant be GET'ed");
+});
+
+/*
 app.get('/users', function(req, res) {
   res.writeHead(200, {'content-type': 'text/html'});
   for(var i = 0; i < users.store.length; i++)
@@ -103,7 +107,7 @@ app.get('/users', function(req, res) {
   console.log(users);
   res.end();
 });
-
+*/
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
