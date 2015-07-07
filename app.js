@@ -49,17 +49,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 
 app.post('/signup', function(req, res){
+  // Get user details
   var uname = req.body.uname;
   var pass = req.body.pass;
   var twoFa = req.body.twoFa;
   var twoFaConfirmation;
+  //These would be part of a DB call
   users.addUser(uname, pass);
 
   var user = users.getUser(uname);
+
+  // If user checked the 2fa on, try to set it up
   if (twoFa === 'on'){
+    // TOTP generation, with the callback
     totp(function (err, otp) {
       twoFaConfirmation = 'YES';
+      //Another db call here to store secret, could be merged with the old one, or maybe not.
       users.addSecret(uname, otp.secret);
+
+      //Generate the QR, with the secret
       var qr = qrCode.qrcode(10, 'M');
       qr.addData(otp.totpURL);
       qr.make();
@@ -74,6 +82,8 @@ app.post('/signup', function(req, res){
 });
 
 app.get('/signup', function(req, res) {
+  // Not really required, i just dont like GET's to the same addresses,
+  // as they will be called by default on the form in case JS is disabled
   res.writeHead(200, {'content-type': 'text/html'});
   res.end("Sorry this document cant be GET'ed");
 });
@@ -92,6 +102,7 @@ app.post('/verify', function(req, res){
 });
 
 app.get('/verify', function(req, res){
+  // Same as above
   res.writeHead(200, {'content-type': 'text/html'});
   res.end("Sorry this document cant be GET'ed");
 });
