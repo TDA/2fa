@@ -10,7 +10,7 @@ var qrCode = require('qrcode-npm');
 var totp = require('./totp');
 var gen_otp = require('./gen_otp');
 var routes = require('./routes/index');
-//var users = require('./routes/users');
+
 
 var app = express();
 var users = {
@@ -47,8 +47,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-//app.use('/users', users);
-
 
 app.post('/signup', function(req, res){
   var uname = req.body.uname;
@@ -85,7 +83,7 @@ app.post('/verify', function(req, res){
   var code = req.body.code;
   var otp = gen_otp(secret);
   if(otp.totp().toString() === code.toString()){
-    // the codes matched, so we were able to set up this successfully.
+    // the codes matched, so we were able to set this up successfully.
     res.end("true");
   }
   else{
@@ -98,16 +96,6 @@ app.get('/verify', function(req, res){
   res.end("Sorry this document cant be GET'ed");
 });
 
-/*
-app.get('/users', function(req, res) {
-  res.writeHead(200, {'content-type': 'text/html'});
-  for(var i = 0; i < users.store.length; i++)
-    res.write('hi');
-  //res.write(users.store[i]);
-  console.log(users);
-  res.end();
-});
-*/
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -116,7 +104,6 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
@@ -138,6 +125,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;
